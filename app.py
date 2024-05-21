@@ -107,17 +107,25 @@ def add_user():
 
 
 @app.route("/posts/delete/<int:id>")
+@login_required
 def delete_post(id):
     post_to_delete = Posts.query.get_or_404(id)
-    try:
-        db.session.delete(post_to_delete)
-        db.session.commit()
-        flash("Blog post was deleted")
-        # grab all posts from database
+    id = current_user.id
+    if id == post_to_delete.poster.id:
+        try:
+            db.session.delete(post_to_delete)
+            db.session.commit()
+            flash("Blog post was deleted")
+            # grab all posts from database
+            posts = Posts.query.order_by(Posts.date_posted)
+            return render_template("posts.html", posts=posts)
+        except:
+            flash("Whoops! There was a problem deleting post. Please try again")
+    else:
+        flash("You are not authorized to delete that post")
         posts = Posts.query.order_by(Posts.date_posted)
+
         return render_template("posts.html", posts=posts)
-    except:
-        flash("Whoops! There was a problem deleting post. Please try again")
 
 
 # create dashboard page
@@ -190,11 +198,17 @@ def edit_post(id):
         db.session.commit()
         flash("Post has been updated")
         return redirect(url_for("post", id=post.id))
-    form.title.data = post.title
-    # form.author.data = post.author
-    form.slug.data = post.slug
-    form.content.data = post.content
-    return render_template("edit_post.html", form=form)
+    # can use current id becuase we check if they are logined in. if they are then they automatically have a current id
+    if current_user.id == post.poster_id:
+        form.title.data = post.title
+        # form.author.data = post.author
+        form.slug.data = post.slug
+        form.content.data = post.content
+        return render_template("edit_post.html", form=form)
+    else:
+        flash("You are not authorized to edit this post")
+        posts = Posts.query.order_by(Posts.date_posted)
+        return render_template("posts.html", posts=posts)
 
 
 # create a route decorator
