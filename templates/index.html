@@ -1,14 +1,17 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Blogger</title>
-    <!-- <link -->
-    <!--   rel="stylesheet" -->
-    <!--  href="{{ url_for('static', filename='style.css') }}" -->
-    <!-- /> -->
-  </head>
-  <body>
-    <h1>First WebPage</h1>
-  </body>
-</html>
+{% extends "base.html" %} {% block content %}
+
+<h1>Hello World</h1>
+
+<p>This is my first webpage!!!</p>
+
+<p>My name is {{ first_name }}</p>
+
+<p>{{ stuff|title }}</p>
+
+<h3>Favorite Anime is One Piece !!!</h3>
+
+<p>My favorite character is Luffy!</p>
+
+<p>Zoro is also Cool</p>
+
+{% endblock %}
