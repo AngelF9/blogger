@@ -1,15 +1,8 @@
-{% extends 'base.html'%} {% block content %} {% for message in
-get_flashed_messages() %}
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-  {{ message }}
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-{% endfor %}
+{% extends 'base.html'%} {% block content %}
 
-<h1>Blog Posts</h1>
 <br />
-
-{% for post in posts %}
+<h2>You searched for: <em>{{ searched }}</em></h2>
+{% if posts %} {% for post in posts %}
 <div class="shadow p-3 mb-5 bg-body rounded">
   <h3>{{ post.title }}<br /></h2>
     <!--can user poster to access all of the data within the class thanks to backref-->
@@ -21,5 +14,5 @@ get_flashed_messages() %}
     <a href="{{ url_for('edit_post', id=post.id) }}" class="btn btn-outline-secondary">Edit Post</a><br /><br />
     {% endif %}
 </div>
-
-{% endfor %} {% endblock %}
+{% endfor %} {% else %} sorry, your search term:
+<strong>{{ searched }}</strong> was not found... {% endif %} {% endblock %}

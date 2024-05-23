@@ -1,6 +1,7 @@
 from datetime import date, datetime
 
 from flask import Flask, flash, redirect, render_template, request, url_for
+from flask_ckeditor import CKEditor
 from flask_login import (
     LoginManager,
     UserMixin,
@@ -13,10 +14,12 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from webforms import LoginForm, NamerForm, PasswordForm, PostForm, UserForm
+from webforms import LoginForm, NamerForm, PasswordForm, PostForm, SearchForm, UserForm
 
 # create a flask instance by calling app
 app = Flask(__name__)
+# add ckeditor
+ckeditor = CKEditor(app)
 
 # vid 9: old sqllite database
 # vid 8: add database
@@ -78,7 +81,7 @@ def add_user():
     if form.validate_on_submit():
         user = Users.query.filter_by(
             email=form.email.data
-        ).first()  # check if the email is already in the database, return the first one or None if unquie
+        ).first()  # check if the email is already in the database, return the first one or None if unique
         if user is None:
             # Hash Password
             hashed_pw = generate_password_hash(
@@ -104,6 +107,17 @@ def add_user():
         Users.date_added
     )  # get all the users from the database
     return render_template("add_user.html", form=form, name=name, our_users=our_users)
+
+
+@app.route("/admin")
+@login_required
+def admin():
+    id = current_user.id
+    if id == 1:
+        return render_template("admin.html")
+    else:
+        flash("Sorry you mst be the Admin to access this page")
+        return redirect(url_for("dashboard"))
 
 
 @app.route("/posts/delete/<int:id>")
@@ -147,7 +161,7 @@ def dashboard():
                 "dashboard.html", form=form, name_to_update=name_to_update
             )
         except:
-            flash("Error! Looks like there was a problem. Try again")
+            flash("Error! Loos like there was a problem. Try again")
             return render_template(
                 "dashboard.html", form=form, name_to_update=name_to_update
             )
@@ -295,6 +309,29 @@ def page_not_found(e):
 @app.errorhandler(500)
 def page_not_found(e):
     return render_template("500.html"), 500
+
+
+# pass stuff to navbar
+@app.context_processor
+def base():
+    form = SearchForm()
+    return dict(form=form)
+
+
+# create search function
+@app.route("/search", methods=["GET", "POST"])
+def search():
+    form = SearchForm()
+    posts = Posts.query
+    if form.validate_on_submit():
+        # get data from submitted form
+        post.searched = form.searched.data
+        # query the database
+        posts = posts.filter(Posts.content.like("%" + post.searched + "%"))
+        posts = posts.order_by(Posts.title).all()
+        return render_template(
+            "search.html", form=form, searched=post.searched, posts=posts
+        )
 
 
 @app.route("/test_pw", methods=["GET", "POST"])

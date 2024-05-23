@@ -1,3 +1,4 @@
+from flask_ckeditor import CKEditorField
 from flask_wtf import FlaskForm
 from wtforms import (
     BooleanField,
@@ -21,7 +22,8 @@ class LoginForm(FlaskForm):
 # create a posts form
 class PostForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
-    content = StringField("Content", validators=[DataRequired()], widget=TextArea())
+    # content = StringField("Content", validators=[DataRequired()], widget=TextArea())
+    content = CKEditorField("Body", validators=[DataRequired()])
     author = StringField("Author")
     slug = StringField("Slug", validators=[DataRequired()])
     submit = SubmitField("Submit")
@@ -52,6 +54,11 @@ class PasswordForm(FlaskForm):
     password_hash = PasswordField("What is your password?", validators=[DataRequired()])
 
     submit = SubmitField("Submit")  # submit button
+
+
+class SearchForm(FlaskForm):
+    searched = StringField("Searched", validators=[DataRequired()])
+    submit = SubmitField("Submit")
 
 
 # create a form class
