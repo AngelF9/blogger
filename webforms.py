@@ -1,10 +1,12 @@
 from flask_ckeditor import CKEditorField
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField
 from wtforms import (
     BooleanField,
     PasswordField,
     StringField,
     SubmitField,
+    TextAreaField,
     ValidationError,
     validators,
 )
@@ -36,6 +38,7 @@ class UserForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired()])
     favorite_color = StringField("Favorite Color")
+    about_author = TextAreaField("About Author")
     password_hash = PasswordField(
         "Password",
         validators=[
@@ -44,6 +47,7 @@ class UserForm(FlaskForm):
         ],
     )
     password_hash2 = PasswordField("Confirm Password", validators=[DataRequired()])
+    profile_pic = FileField("Profile Pic")
 
     submit = SubmitField("Submit")  # submit button
 

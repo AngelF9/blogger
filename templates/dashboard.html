@@ -16,19 +16,27 @@ get_flashed_messages() %}
     <div class="container">
       <div class="row">
         <div class="col-8">
-          <strong>Name:</strong>{{ current_user.name }}<br />
-          <strong>Username:</strong>{{ current_user.username }}<br />
-          <strong>User Id:</strong>{{ current_user.id }}<br />
-          <strong>Email:</strong>{{ current_user.email }}<br />
-          <strong>Favorite Color:</strong>{{ current_user.favorite_color }}<br />
-          <strong></strong>{{ current_user.date_add }}<br />
+          <strong>Name:</strong> {{ current_user.name }}<br />
+          <strong>Username:</strong> {{ current_user.username }}<br />
+          <strong>User Id:</strong> {{ current_user.id }}<br />
+          <strong>Email:</strong> {{ current_user.email }}<br />
+          <strong>Favorite Color:</strong> {{ current_user.favorite_color }}<br />
+          <strong>About Author:</strong> {{ current_user.about_author }}<br />
+
+          <strong>Profile Pic:</strong> {{ current_user.profile_pic }}<br />
+          <strong>Date Joined:</strong> {{ current_user.date_added }}<br />
           </p>
           <a href="{{ url_for('logout') }}" class="btn btn-primary">Logout</a>
           <a href="{{ url_for('update', id=current_user.id)}}" class="btn btn-primary">Update Profile</a>
           <a href="{{ url_for('delete', id=current_user.id)}}" class="btn btn-danger">Delete</a>
         </div>
         <div class="col-4">
+          {% if current_user.profile_pic %}
+            
+            <img src="{{ url_for('static', filename='images/' + current_user.profile_pic) }}" width="200" align="right">
+          {% else %}
           <img src="{{ url_for('static', filename='images/profile.jpg')}}" width="200" align="right">
+          {% endif %}
         </div>
       </div>
     </div>
@@ -38,7 +46,7 @@ get_flashed_messages() %}
     <div class="card">
       <div class="card-header">Update Profile</div>
       <div class="card-body">
-        <form action="/dashboard" method="POST">
+        <form action="/dashboard" method="POST" enctype="multipart/form-data">
           {{ form.hidden_tag() }} {{ form.name.label(class="form-label") }} {{
           form.name(class="form-control", value=name_to_update.name) }}
           <br />
@@ -52,7 +60,15 @@ get_flashed_messages() %}
           form.favorite_color(class="form-control",
           value=name_to_update.favorite_color) }}
           <br />
-
+          {{ form.about_author.label(class="form-label") }}
+          <textarea name="about_author" class="form-control">{{ name_to_update.about_author }}
+          </textarea>
+          <br />
+          {{ form.profile_pic.label(class="form-label") }} {{
+          form.profile_pic(class="form-control",
+          value=name_to_update.profile_pic) }}
+          <br />
+          {{ form.about_author.label(class="form-label") }}
           {{ form.submit(class="btn btn-primary") }}
         </form>
       </div>
