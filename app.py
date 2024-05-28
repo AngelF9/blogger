@@ -51,7 +51,7 @@ login_manager.login_veiw = "login"
 
 
 @app.route("/add-post", methods=["GET", "POST"])
-@login_required
+# @login_required
 def add_post():
     form = PostForm()
 
@@ -254,14 +254,14 @@ def edit_post(id):
 
 
 # create a route decorator
-@app.route("/")
-def index():
-    first_name = "John"
-    stuff = "This is bold text"
-    favorite_pizza = ["Pepperoni", "Cheese", "Mushroom"]
-    return render_template(
-        "index.html", first_name=first_name, stuff=stuff, favorite_pizza=favorite_pizza
-    )
+# @app.route("/")
+# def index():
+#     first_name = "John"
+#     stuff = "This is bold text"
+#     favorite_pizza = ["Pepperoni", "Cheese", "Mushroom"]
+#     return render_template(
+#         "index.html", first_name=first_name, stuff=stuff, favorite_pizza=favorite_pizza
+#     )
 
 
 # create login page
@@ -313,7 +313,7 @@ def name():
     return render_template("name.html", name=name, form=form)
 
 
-@app.route("/posts")
+@app.route("/")
 def posts():
     # grab all the post from the database
     posts = Posts.query.order_by(Posts.date_posted)
@@ -423,12 +423,15 @@ def update(id):
 
 
 # localhost:5000/user/John
+# WANRING: this is not in use... how to get rid of.. idk
 @app.route("/user/<name>")
 def user(name):
     return render_template(
         "user.html", user_name=name
     )  # user_name can be accessed in template (.html)
 
+
+#
 
 # -------------------- DataBase Section ----------------------
 

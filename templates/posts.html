@@ -1,4 +1,32 @@
-{% extends 'base.html'%} {% block content %} {% for message in
+{% extends 'base.html'%} {% block content %} 
+
+<style>
+
+.wallpaper-container {
+  position: relative;
+  width: 100%;
+  height: 65vh;
+  overflow: hidden;
+}
+
+.wallpaper-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.overlay-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white; /* Change the text color as needed */
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+</style>
+
+{% for message in
 get_flashed_messages() %}
 <div class="alert alert-success alert-dismissible fade show" role="alert">
   {{ message }}
@@ -6,7 +34,18 @@ get_flashed_messages() %}
 </div>
 {% endfor %}
 
-<h1>Blog Posts</h1>
+    <div class="wallpaper-container">
+      <img src="{{ url_for('static', filename='images/city.jpg') }}"
+        alt=""
+        class="wallpaper-photo"
+      />
+      <div class="overlay-text">
+        <h1>
+          <strong>Blog Post</strong>
+        </h1>
+      </div>
+    </div>
+
 <br />
 
 {% for post in posts %}
