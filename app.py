@@ -24,26 +24,18 @@ app = Flask(__name__)
 # add ckeditor
 ckeditor = CKEditor(app)
 
-# vid 9: old sqllite database
-# vid 8: add database
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
-
-# vid 9: new sqllite database
-# app.config["SQLALCHEMY_DATABASE_URI"] = (
-#     "mysql+pymysql://root:new_password@localhost/our_users"
-# )
-
+# Directly using the database URL
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    "postgres://ucfvg2jr8m5fs5:p34c57127e2f1f5a7fe47add8293977ab6fa551c1fb2c597c8859b4c0e5aba342@c67okggoj39697.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/ddmv2g69r62na5"
+    "postgresql://ucfvg2jr8m5fs5:p34c57127e2f1f5a7fe47add8293977ab6fa551c1fb2c597c8859b4c0e5aba342@c67okggoj39697.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/ddmv2g69r62na5"
 )
 
-# configure the secret key
+# Configure the secret key
 app.config["SECRET_KEY"] = "my super secret key"
 
 UPLOAD_FOLDER = "static/images/"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# vid 8: initialize the database
+# Initialize the database
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
