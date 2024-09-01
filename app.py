@@ -18,22 +18,27 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
 from webforms import LoginForm, NamerForm, PasswordForm, PostForm, SearchForm, UserForm
+from flask_caching import Cache
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # create a flask instance by calling app
 app = Flask(__name__)
+
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+
 # add ckeditor
 ckeditor = CKEditor(app)
 
-# Directly using the database URL
-app.config["SQLALCHEMY_DATABASE_URI"] = (
-    "postgresql://ucfvg2jr8m5fs5:p34c57127e2f1f5a7fe47add8293977ab6fa551c1fb2c597c8859b4c0e5aba342@c67okggoj39697.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/ddmv2g69r62na5"
-)
+# SQL query logging
+# app.config["SQLALCHEMY_ECHO"] = True
 
-# Configure the secret key
-app.config["SECRET_KEY"] = "my super secret key"
+# Configure the secret key from environment variables
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
-UPLOAD_FOLDER = "static/images/"
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+# Database configuration from environment variables
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 
 # Initialize the database
 db = SQLAlchemy(app)
@@ -44,6 +49,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_veiw = "login"
 
+# SQL query logging
+app.config["SQLALCHEMY_ECHO"] = True
 
 @app.route("/add-post", methods=["GET", "POST"])
 # @login_required
@@ -146,6 +153,7 @@ def delete_post(id):
 # create dashboard page
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
+@cache.cached(timeout=60, key_prefix='dashboard_view')
 def dashboard():
     form = UserForm()
     id = current_user.id
@@ -248,17 +256,6 @@ def edit_post(id):
         return render_template("posts.html", posts=posts)
 
 
-# create a route decorator
-# @app.route("/")
-# def index():
-#     first_name = "John"
-#     stuff = "This is bold text"
-#     favorite_pizza = ["Pepperoni", "Cheese", "Mushroom"]
-#     return render_template(
-#         "index.html", first_name=first_name, stuff=stuff, favorite_pizza=favorite_pizza
-#     )
-
-
 # create login page
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -309,13 +306,14 @@ def name():
 
 
 @app.route("/")
+@cache.cached(timeout=60, key_prefix='all_posts')
 def posts():
-    # grab all the post from the database
-    posts = Posts.query.order_by(Posts.date_posted)
+    posts = Posts.query.order_by(Posts.date_posted).all()
     return render_template("posts.html", posts=posts)
 
 
 @app.route("/posts/<int:id>")
+@cache.cached(timeout=300, key_prefix='post_view')
 def post(id):
     post = Posts.query.get_or_404(id)
     return render_template("post.html", post=post)
@@ -437,23 +435,20 @@ class Posts(db.Model):
     title = db.Column(db.String(255))
     content = db.Column(db.Text)
     # author = db.Column(db.String(255))
-    date_posted = db.Column(db.DateTime, default=datetime.utcnow)
-    slug = db.Column(db.String(255))
+    date_posted = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    slug = db.Column(db.String(255), index=True)
     # Foreign Key To Link Users (refer to primary key of the user)
-    poster_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
+    poster_id = db.Column(db.Integer, db.ForeignKey("users.id"), index=True)  # index added
 
 # Create Model
 class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), nullable=False, unique=True)
-    name = db.Column(db.String(200), nullable=False)
-    email = db.Column(db.String(120), nullable=False, unique=True)
+    username = db.Column(db.String(20), nullable=False, unique=True, index=True)
+    email = db.Column(db.String(120), nullable=False, unique=True, index=True)
     favorite_color = db.Column(db.String(120))
     about_author = db.Column(db.Text(), nullable=True)
-    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_added = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     profile_pic = db.Column(db.String(225), nullable=True)
-
     # Do some password stuff!
     password_hash = db.Column(db.String(128))
     # User Can Have Many Posts
